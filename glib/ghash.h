@@ -101,6 +101,13 @@ GPtrArray * g_hash_table_steal_all_values  (GHashTable     *hash_table);
 GLIB_AVAILABLE_IN_ALL
 gpointer    g_hash_table_lookup            (GHashTable     *hash_table,
                                             gconstpointer   key);
+typedef struct r2 {
+  unsigned long r0;
+  unsigned long r1;
+} r2_t;
+GLIB_AVAILABLE_IN_ALL
+__attribute__((qemuaot)) r2_t g_hash_table_lookup_qemuaot (unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long lr,
+                                            GHashTable *hash_table, gconstpointer key);
 GLIB_AVAILABLE_IN_ALL
 gboolean    g_hash_table_contains          (GHashTable     *hash_table,
                                             gconstpointer   key);
@@ -195,7 +202,7 @@ gboolean g_double_equal (gconstpointer  v1,
 GLIB_AVAILABLE_IN_ALL
 guint    g_double_hash  (gconstpointer  v);
 
-GLIB_AVAILABLE_IN_ALL
+GLIB_AVAILABLE_IN_ALL __attribute__((always_inline))
 guint    g_direct_hash  (gconstpointer  v) G_GNUC_CONST;
 GLIB_AVAILABLE_IN_ALL
 gboolean g_direct_equal (gconstpointer  v1,

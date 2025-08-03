@@ -332,7 +332,7 @@ g_hash_table_realloc_key_or_value_array (gpointer a, guint size, G_GNUC_UNUSED g
 #endif
 }
 
-static inline gpointer
+static __attribute__((always_inline)) inline gpointer
 g_hash_table_fetch_key_or_value (gpointer a, guint index, gboolean is_big)
 {
 #ifndef USE_SMALL_ARRAYS
@@ -373,7 +373,7 @@ g_hash_table_evict_key_or_value (gpointer a, guint index, gboolean is_big, gpoin
     }
 }
 
-static inline guint
+static __attribute__((always_inline)) inline guint
 g_hash_table_hash_to_index (GHashTable *hash_table, guint hash)
 {
   /* Multiply the hash by a small prime before applying the modulo. This
@@ -443,6 +443,60 @@ g_hash_table_lookup_node (GHashTable    *hash_table,
                 return node_index;
             }
           else if (node_key == key)
+            {
+              return node_index;
+            }
+        }
+      else if (HASH_IS_TOMBSTONE (node_hash) && !have_tombstone)
+        {
+          first_tombstone = node_index;
+          have_tombstone = TRUE;
+        }
+
+      step++;
+      node_index += step;
+      node_index &= hash_table->mask;
+      node_hash = hash_table->hashes[node_index];
+    }
+
+  if (have_tombstone)
+    return first_tombstone;
+
+  return node_index;
+}
+
+static __attribute__((always_inline)) inline guint
+g_hash_table_lookup_node_qemuaot (GHashTable    *hash_table,
+                          gconstpointer  key,
+                          guint         *hash_return)
+{
+  guint node_index;
+  guint node_hash;
+  guint hash_value;
+  guint first_tombstone = 0;
+  gboolean have_tombstone = FALSE;
+  guint step = 0;
+
+  hash_value = g_direct_hash (key);
+  if (G_UNLIKELY (!HASH_IS_REAL (hash_value)))
+    hash_value = 2;
+
+  *hash_return = hash_value;
+
+  node_index = g_hash_table_hash_to_index (hash_table, hash_value);
+  node_hash = hash_table->hashes[node_index];
+
+  while (!HASH_IS_UNUSED (node_hash))
+    {
+      /* We first check if our full hash values
+       * are equal so we can avoid calling the full-blown
+       * key equality function in most cases.
+       */
+      if (node_hash == hash_value)
+        {
+          gpointer node_key = g_hash_table_fetch_key_or_value (hash_table->keys, node_index, hash_table->have_big_keys);
+
+          if (node_key == key)
             {
               return node_index;
             }
@@ -1492,6 +1546,27 @@ g_hash_table_lookup (GHashTable    *hash_table,
     : NULL;
 }
 
+extern __attribute__((qemuaot)) r2_t return_qemuaot(unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long lr, unsigned long jmp_dest, unsigned long ptr);
+
+__attribute__((qemuaot)) r2_t
+g_hash_table_lookup_qemuaot (unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long lr,
+                                     GHashTable *hash_table, gconstpointer key)
+{
+  guint node_index;
+  guint node_hash;
+
+  //g_return_val_if_fail (hash_table != NULL, NULL);
+
+  node_index = g_hash_table_lookup_node_qemuaot (hash_table, key, &node_hash);
+
+  gpointer gptr = HASH_IS_REAL (hash_table->hashes[node_index])
+    ? g_hash_table_fetch_key_or_value (hash_table->values, node_index, hash_table->have_big_values)
+    : NULL;
+  unsigned long ptr = (unsigned long)gptr;
+  unsigned long jmp_dest = (unsigned long)key;
+  return return_qemuaot(rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15, src, dst, op, lr, jmp_dest, ptr);
+}
+
 /**
  * g_hash_table_lookup_extended:
  * @hash_table: a #GHashTable
@@ -2491,7 +2566,7 @@ g_str_hash (gconstpointer v)
  *
  * Returns: a hash value corresponding to the key.
  */
-guint
+__attribute__((always_inline)) guint
 g_direct_hash (gconstpointer v)
 {
   return GPOINTER_TO_UINT (v);
