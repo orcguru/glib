@@ -1546,14 +1546,16 @@ g_hash_table_lookup (GHashTable    *hash_table,
     : NULL;
 }
 
-typedef __attribute__((qemuaot)) void (*FuncPtrType)(unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long rip, v2long xmm0, v2long ymm0_h, v2long xmm1, v2long ymm1_h, v2long xmm2, v2long ymm2_h, v2long xmm3, v2long ymm3_h, v2long xmm4, v2long ymm4_h, v2long xmm5, v2long ymm5_h, v2long xmm6, v2long ymm6_h, v2long xmm7, v2long ymm7_h, v2long xmm8, v2long ymm8_h, v2long xmm9, v2long ymm9_h, v2long xmm10, v2long ymm10_h, v2long xmm11, v2long ymm11_h, v2long xmm12, v2long ymm12_h, v2long xmm13, v2long ymm13_h, v2long xmm14, v2long ymm14_h, GHashTable *hash_table, gconstpointer key, unsigned long trampoline_helper_jit);
+typedef __attribute__((qemuaot)) void (*FuncPtrType)(unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long rip, v2long xmm0, v2long ymm0_h, v2long xmm1, v2long ymm1_h, v2long xmm2, v2long ymm2_h, v2long xmm3, v2long ymm3_h, v2long xmm4, v2long ymm4_h, v2long xmm5, v2long ymm5_h, v2long xmm6, v2long ymm6_h, v2long xmm7, v2long ymm7_h, v2long xmm8, v2long ymm8_h, v2long xmm9, v2long ymm9_h, v2long xmm10, v2long ymm10_h, v2long xmm11, v2long ymm11_h, v2long xmm12, v2long ymm12_h, v2long xmm13, v2long ymm13_h, v2long xmm14, v2long ymm14_h, unsigned long hash_table, unsigned long key, unsigned long trampoline_helper_jit);
 
 __attribute__((qemuaot)) void g_hash_table_lookup_qemuaot (unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long rip, v2long xmm0, v2long ymm0_h, v2long xmm1, v2long ymm1_h, v2long xmm2, v2long ymm2_h, v2long xmm3, v2long ymm3_h, v2long xmm4, v2long ymm4_h, v2long xmm5, v2long ymm5_h, v2long xmm6, v2long ymm6_h, v2long xmm7, v2long ymm7_h, v2long xmm8, v2long ymm8_h, v2long xmm9, v2long ymm9_h, v2long xmm10, v2long ymm10_h, v2long xmm11, v2long ymm11_h, v2long xmm12, v2long ymm12_h, v2long xmm13, v2long ymm13_h, v2long xmm14, v2long ymm14_h,
-                                     GHashTable *hash_table, gconstpointer key, unsigned long jmp_ind_callback, unsigned long trampoline_helper_jit)
+                                     unsigned long hash_table_ptr, unsigned long key_ptr, unsigned long jmp_ind_callback, unsigned long trampoline_helper_jit)
 {
   guint node_index;
   guint node_hash;
 
+  GHashTable *hash_table = (GHashTable *)hash_table_ptr;
+  gconstpointer key = (gconstpointer)key_ptr;
   //g_return_val_if_fail (hash_table != NULL, NULL);
 
   node_index = g_hash_table_lookup_node_qemuaot (hash_table, key, &node_hash);
