@@ -1546,10 +1546,18 @@ g_hash_table_lookup (GHashTable    *hash_table,
     : NULL;
 }
 
+#if AOT_LEVEL == AOT_LEVEL_MAX
 typedef __attribute__((qemuaot)) void (*FuncPtrType)(unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long rip, v2long xmm0, v2long ymm0_h, v2long xmm1, v2long ymm1_h, v2long xmm2, v2long ymm2_h, v2long xmm3, v2long ymm3_h, v2long xmm4, v2long ymm4_h, v2long xmm5, v2long ymm5_h, v2long xmm6, v2long ymm6_h, v2long xmm7, v2long ymm7_h, v2long xmm8, v2long ymm8_h, v2long xmm9, v2long ymm9_h, v2long xmm10, v2long ymm10_h, v2long xmm11, v2long ymm11_h, v2long xmm12, v2long ymm12_h, v2long xmm13, v2long ymm13_h, v2long xmm14, v2long ymm14_h, v2long xmm15, v2long ymm15_h, unsigned long hash_table, unsigned long key, unsigned long trampoline_helper_jit);
+#elif AOT_LEVEL == AOT_LEVEL_0
+typedef __attribute__((qemuaot)) void (*FuncPtrType)(unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long rip, unsigned long hash_table, unsigned long key, unsigned long trampoline_helper_jit);
+#endif
 
+#if AOT_LEVEL == AOT_LEVEL_MAX
 __attribute__((qemuaot)) void g_hash_table_lookup_qemuaot (unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long src, unsigned long dst, int op, unsigned long rip, v2long xmm0, v2long ymm0_h, v2long xmm1, v2long ymm1_h, v2long xmm2, v2long ymm2_h, v2long xmm3, v2long ymm3_h, v2long xmm4, v2long ymm4_h, v2long xmm5, v2long ymm5_h, v2long xmm6, v2long ymm6_h, v2long xmm7, v2long ymm7_h, v2long xmm8, v2long ymm8_h, v2long xmm9, v2long ymm9_h, v2long xmm10, v2long ymm10_h, v2long xmm11, v2long ymm11_h, v2long xmm12, v2long ymm12_h, v2long xmm13, v2long ymm13_h, v2long xmm14, v2long ymm14_h, v2long xmm15, v2long ymm15_h,
                                      unsigned long hash_table_ptr, unsigned long key_ptr, unsigned long jmp_ind_callback, unsigned long trampoline_helper_jit)
+#elif AOT_LEVEL == AOT_LEVEL_0
+__attribute__((qemuaot)) void g_hash_table_lookup_qemuaot (unsigned long rax, unsigned long rcx, unsigned long rdx, unsigned long rbx, unsigned long rsp, unsigned long rbp, unsigned long rsi, unsigned long rdi, unsigned long r8, unsigned long r9, unsigned long r10, unsigned long r11, unsigned long r12, unsigned long r13, unsigned long r14, unsigned long r15, unsigned long rip, unsigned long hash_table_ptr, unsigned long key_ptr, unsigned long jmp_ind_callback, unsigned long trampoline_helper_jit)
+#endif
 {
   guint node_index;
   guint node_hash;
@@ -1566,7 +1574,11 @@ __attribute__((qemuaot)) void g_hash_table_lookup_qemuaot (unsigned long rax, un
   unsigned long ptr = (unsigned long)gptr;
   unsigned long jmp_dest = (unsigned long)key;
   FuncPtrType func_ptr = (FuncPtrType)jmp_ind_callback;
+#if AOT_LEVEL == AOT_LEVEL_MAX
   return func_ptr(rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15, src, dst, op, rip, xmm0, ymm0_h, xmm1, ymm1_h, xmm2, ymm2_h, xmm3, ymm3_h, xmm4, ymm4_h, xmm5, ymm5_h, xmm6, ymm6_h, xmm7, ymm7_h, xmm8, ymm8_h, xmm9, ymm9_h, xmm10, ymm10_h, xmm11, ymm11_h, xmm12, ymm12_h, xmm13, ymm13_h, xmm14, ymm14_h, xmm15, ymm15_h, jmp_dest, ptr, trampoline_helper_jit);
+#elif AOT_LEVEL == AOT_LEVEL_0
+  return func_ptr(rax, rcx, rdx, rbx, rsp, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15, rip, jmp_dest, ptr, trampoline_helper_jit);
+#endif
 }
 
 /**
