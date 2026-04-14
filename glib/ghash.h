@@ -105,7 +105,7 @@ typedef unsigned long __attribute__((__vector_size__(16))) v2long;
 #define AOT_LEVEL_0                 0
 #define AOT_LEVEL_1                 1
 #define AOT_LEVEL_MAX               3
-#define AOT_LEVEL                   AOT_LEVEL_MAX
+#define AOT_LEVEL                   AOT_LEVEL_0
 
 #if AOT_LEVEL == AOT_LEVEL_MAX
 GLIB_AVAILABLE_IN_ALL
